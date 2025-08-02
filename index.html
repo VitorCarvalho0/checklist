@@ -193,13 +193,13 @@
         await new Promise((resolve) => setTimeout(resolve, 300));
 
         const canvas = await html2canvas(element, {
-          scale: 2,
+          scale: 3, // aumenta a resolução
           useCORS: true,
           windowWidth: element.scrollWidth,
           windowHeight: element.scrollHeight,
         });
 
-        const imgData = canvas.toDataURL("image/png");
+        const imgData = canvas.toDataURL("image/jpeg", 1.0); // JPEG de alta qualidade
 
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF("p", "mm", "a4");
@@ -207,7 +207,47 @@
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+        // Se a imagem for maior que uma página A4, cria várias páginas
+        if (pdfHeight <= pdf.internal.pageSize.getHeight()) {
+          pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
+        } else {
+          let position = 0;
+          let pageHeight = pdf.internal.pageSize.getHeight();
+          let canvasHeight = canvas.height;
+          let pageCanvasHeight = (pageHeight * canvas.width) / pdfWidth;
+
+          while (position < canvasHeight) {
+            const pageCanvas = document.createElement("canvas");
+            pageCanvas.width = canvas.width;
+            pageCanvas.height = Math.min(
+              pageCanvasHeight,
+              canvasHeight - position
+            );
+
+            const ctx = pageCanvas.getContext("2d");
+            ctx.drawImage(
+              canvas,
+              0,
+              position,
+              canvas.width,
+              pageCanvas.height,
+              0,
+              0,
+              canvas.width,
+              pageCanvas.height
+            );
+
+            const pageData = pageCanvas.toDataURL("image/jpeg", 1.0);
+            if (position === 0) {
+              pdf.addImage(pageData, "JPEG", 0, 0, pdfWidth, pageHeight);
+            } else {
+              pdf.addPage();
+              pdf.addImage(pageData, "JPEG", 0, 0, pdfWidth, pageHeight);
+            }
+            position += pageCanvas.height;
+          }
+        }
+
         pdf.save("checklist-veicular.pdf");
       }
 
