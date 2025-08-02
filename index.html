@@ -1,246 +1,190 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <title>Checklist Veicular</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background: #f9f9f9;
-        padding: 20px;
-        max-width: 480px;
-        margin: auto;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <title>Checklist Veicular</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+      max-width: 480px;
+      margin: auto;
+    }
 
-      h2 {
-        text-align: center;
-        margin-bottom: 20px;
-      }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
 
-      label {
-        display: block;
-        margin-top: 10px;
-        font-weight: bold;
-      }
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
 
-      input[type="text"],
-      input[type="date"],
-      input[type="number"],
-      textarea {
-        width: 100%;
-        padding: 8px;
-        margin-top: 5px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-      }
+    .foto-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
 
-      .fotos,
-      .assinatura {
-        margin-top: 20px;
-        padding: 15px;
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      }
+    .foto-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-      .foto-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-        margin-top: 10px;
-      }
+    .foto-item input {
+      width: 100%;
+    }
 
-      .foto-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 5px;
-      }
+    .foto-item img {
+      width: 100%;
+      max-height: 100px;
+      object-fit: cover;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
 
-      .foto-item input[type="file"] {
-        width: 100%;
-        padding: 8px;
-        border: 2px dashed #ccc;
-        border-radius: 6px;
-      }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      background-color: #3366ff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>Checklist Veicular</h2>
+  <form id="checklist-form">
+    <label>Cliente</label>
+    <input type="text" name="cliente" required />
 
-      .foto-item img {
-        width: 100%;
-        max-height: 120px;
-        object-fit: cover;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-      }
+    <label>Telefone</label>
+    <input type="text" name="telefone" />
 
-      button {
-        width: 100%;
-        padding: 12px;
-        margin-top: 20px;
-        background-color: #3366ff;
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        cursor: pointer;
-      }
+    <label>Placa</label>
+    <input type="text" name="placa" required />
 
-      button:hover {
-        background-color: #254edb;
-      }
+    <label>KM</label>
+    <input type="number" name="km" />
 
-      .assinatura input {
-        font-family: cursive;
-      }
-    </style>
-  </head>
-  <body>
-    <h2>Checklist Veicular</h2>
+    <label>Ano</label>
+    <input type="text" name="ano" />
 
-    <div id="formulario-pdf">
-      <form id="checklist-form">
-        <label>Cliente</label>
-        <input type="text" name="cliente" required />
+    <label>Data</label>
+    <input type="date" name="data" />
 
-        <label>Telefone</label>
-        <input type="text" name="telefone" />
+    <label>Observações</label>
+    <textarea name="observacoes" rows="4"></textarea>
 
-        <label>Placa</label>
-        <input type="text" name="placa" required />
+    <label>Assinatura</label>
+    <input type="text" name="assinatura" />
 
-        <label>KM</label>
-        <input type="number" name="km" />
-
-        <label>Ano</label>
-        <input type="text" name="ano" />
-
-        <label>Data</label>
-        <input type="date" name="data" />
-
-        <div class="fotos">
-          <h3>Condições do Veículo</h3>
-          <div class="foto-grid">
-            <div class="foto-item">
-              <input type="file" name="foto1" accept="image/*" />
-            </div>
-            <div class="foto-item">
-              <input type="file" name="foto2" accept="image/*" />
-            </div>
-            <div class="foto-item">
-              <input type="file" name="foto3" accept="image/*" />
-            </div>
-            <div class="foto-item">
-              <input type="file" name="foto4" accept="image/*" />
-            </div>
-            <div class="foto-item">
-              <input type="file" name="foto5" accept="image/*" />
-            </div>
-            <div class="foto-item">
-              <input type="file" name="foto6" accept="image/*" />
-            </div>
-          </div>
-        </div>
-
-        <label>Observações</label>
-        <textarea name="observacoes" rows="4"></textarea>
-
-        <div class="assinatura">
-          <h3>Assinatura</h3>
-          <input
-            type="text"
-            name="assinatura"
-            placeholder="Assinatura digital"
-          />
-        </div>
-
-        <button type="button" onclick="gerarPDF()">Gerar PDF</button>
-        <button type="button" onclick="enviarWhatsApp()">
-          Enviar para WhatsApp
-        </button>
-      </form>
+    <h3>Fotos do Veículo</h3>
+    <div class="foto-grid">
+      <div class="foto-item"><input type="file" name="foto1" accept="image/*" /></div>
+      <div class="foto-item"><input type="file" name="foto2" accept="image/*" /></div>
+      <div class="foto-item"><input type="file" name="foto3" accept="image/*" /></div>
+      <div class="foto-item"><input type="file" name="foto4" accept="image/*" /></div>
+      <div class="foto-item"><input type="file" name="foto5" accept="image/*" /></div>
+      <div class="foto-item"><input type="file" name="foto6" accept="image/*" /></div>
     </div>
 
-    <script>
-      // Exibe prévia das imagens
-      document.querySelectorAll('input[type="file"]').forEach((input) => {
-        input.addEventListener("change", function () {
-          const file = this.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-              const container = input.parentElement;
-              let img = container.querySelector("img");
-              if (!img) {
-                img = document.createElement("img");
-                container.appendChild(img);
-              }
-              img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-          }
-        });
-      });
+    <button type="button" onclick="gerarPDF()">Gerar PDF</button>
+  </form>
 
-      async function gerarPDF() {
-        const element = document.getElementById("formulario-pdf");
+  <script>
+    async function gerarPDF() {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF();
 
-        await new Promise((resolve) => setTimeout(resolve, 500));
+      const form = document.getElementById("checklist-form");
+      const dados = new FormData(form);
 
-        const canvas = await html2canvas(element, {
-          scale: 3,
-          useCORS: true,
-          windowWidth: element.scrollWidth,
-          windowHeight: element.scrollHeight,
-        });
+      const camposTexto = `
+Checklist Veicular
 
-        const imgData = canvas.toDataURL("image/jpeg", 1.0);
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF("p", "mm", "a4");
-
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-
-        const imgWidth = pdfWidth;
-        const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-        let heightLeft = imgHeight;
-        let position = 0;
-
-        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pdfHeight;
-
-        while (heightLeft > 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-          heightLeft -= pdfHeight;
-        }
-
-        pdf.save("checklist-veicular.pdf");
-      }
-
-      function enviarWhatsApp() {
-        const cliente = document.querySelector("[name='cliente']").value;
-        const telefone = document
-          .querySelector("[name='telefone']")
-          .value.replace(/\D/g, "");
-        const placa = document.querySelector("[name='placa']").value;
-        const data = document.querySelector("[name='data']").value;
-
-        const mensagem = `
-Olá ${cliente}, segue o checklist do seu veículo (${placa}) feito em ${data}.
-📎 O PDF foi gerado. Por favor, anexe o arquivo baixado nesta conversa.
+Cliente: ${dados.get("cliente")}
+Telefone: ${dados.get("telefone")}
+Placa: ${dados.get("placa")}
+KM: ${dados.get("km")}
+Ano: ${dados.get("ano")}
+Data: ${dados.get("data")}
+Observações: ${dados.get("observacoes")}
+Assinatura: ${dados.get("assinatura")}
 `;
 
-        const textoCodificado = encodeURIComponent(mensagem);
-        const numeroWhatsApp = `55${telefone}`;
-        window.open(
-          `https://wa.me/${numeroWhatsApp}?text=${textoCodificado}`,
-          "_blank"
-        );
+      const margin = 10;
+      let y = 10;
+      const lineHeight = 7;
+      pdf.setFontSize(12);
+
+      camposTexto.split("\n").forEach((linha) => {
+        if (linha.trim() !== "") {
+          pdf.text(linha, margin, y);
+          y += lineHeight;
+        }
+      });
+
+      // Salto antes das imagens
+      y += 5;
+      pdf.text("Fotos do Veículo:", margin, y);
+      y += lineHeight;
+
+      const maxWidth = 60;
+      const maxHeight = 45;
+      const spacing = 5;
+      let col = 0;
+
+      for (let i = 1; i <= 6; i++) {
+        const input = form.querySelector(`[name="foto${i}"]`);
+        if (input.files[0]) {
+          const dataURL = await fileToDataURL(input.files[0]);
+
+          if (col === 2) {
+            col = 0;
+            y += maxHeight + spacing;
+          }
+
+          if (y + maxHeight > 280) {
+            pdf.addPage();
+            y = 10;
+          }
+
+          const x = margin + col * (maxWidth + spacing);
+          pdf.addImage(dataURL, "JPEG", x, y, maxWidth, maxHeight);
+          col++;
+        }
       }
-    </script>
-  </body>
+
+      pdf.save("checklist-veicular.pdf");
+    }
+
+    function fileToDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+  </script>
+</body>
 </html>
