@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Checklist Veicular</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 20px;
+      max-width: 480px;
+      margin: auto;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .fotos, .assinatura {
+      margin-top: 20px;
+      padding: 15px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    .fotos h3, .assinatura h3 {
+      margin-top: 0;
+    }
+
+    .opcoes {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .opcoes label {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: normal;
+    }
+
+    .foto-grid {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .foto-grid input[type="file"] {
+      width: 100px;
+      height: 100px;
+      padding: 10px;
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 20px;
+      background-color: #3366ff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #254edb;
+    }
+
+    .assinatura input {
+      font-family: cursive;
+    }
+  </style>
+</head>
+<body>
+  <h2>Checklist Veicular</h2>
+
+  <form>
+    <label>Cliente</label>
+    <input type="text" name="cliente" required>
+
+    <label>Telefone</label>
+    <input type="text" name="telefone">
+
+    <label>Placa</label>
+    <input type="text" name="placa" required>
+
+    <label>KM</label>
+    <input type="number" name="km">
+
+    <label>Ano</label>
+    <input type="text" name="ano">
+
+    <label>Data</label>
+    <input type="date" name="data">
+
+    <div class="fotos">
+      <h3>Condições do Veículo</h3>
+      <div class="foto-grid">
+        <input type="file" name="foto1" accept="image/*">
+        <input type="file" name="foto2" accept="image/*">
+        <input type="file" name="foto3" accept="image/*">
+        <input type="file" name="foto4" accept="image/*">
+        <input type="file" name="foto5" accept="image/*">
+        <input type="file" name="foto6" accept="image/*">
+      </div>
+    </div>
+
+    <label>Observações</label>
+    <textarea name="observacoes" rows="4"></textarea>
+
+    <div class="assinatura">
+      <h3>Assinatura</h3>
+      <input type="text" name="assinatura" placeholder="Assinatura digital">
+    </div>
+
+    <button type="submit">Enviar</button>
+  </form>
+</body>
+</html>
