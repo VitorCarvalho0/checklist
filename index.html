@@ -171,15 +171,16 @@
           if (file) {
             const reader = new FileReader();
             reader.onload = function (e) {
-              const img = document.createElement("img");
-              img.src = e.target.result;
               const container = input.parentElement;
-              const existingImg = container.querySelector("img");
-              if (existingImg) {
-                existingImg.src = e.target.result;
-              } else {
+              let img = container.querySelector("img");
+              if (!img) {
+                img = document.createElement("img");
+                img.style.width = "100px";
+                img.style.height = "100px";
+                img.style.objectFit = "cover";
                 container.appendChild(img);
               }
+              img.src = e.target.result;
             };
             reader.readAsDataURL(file);
           }
@@ -189,63 +190,40 @@
       async function gerarPDF() {
         const element = document.getElementById("formulario-pdf");
 
-        // Aguarda renderização
+        // Aguarda a renderização visual antes de capturar
         await new Promise((resolve) => setTimeout(resolve, 300));
 
+        // Captura com resolução alta
         const canvas = await html2canvas(element, {
-          scale: 3, // aumenta a resolução
+          scale: 3,
           useCORS: true,
           windowWidth: element.scrollWidth,
           windowHeight: element.scrollHeight,
         });
 
-        const imgData = canvas.toDataURL("image/jpeg", 1.0); // JPEG de alta qualidade
+        const imgData = canvas.toDataURL("image/jpeg", 1.0);
 
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF("p", "mm", "a4");
 
         const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        const pdfHeight = pdf.internal.pageSize.getHeight();
 
-        // Se a imagem for maior que uma página A4, cria várias páginas
-        if (pdfHeight <= pdf.internal.pageSize.getHeight()) {
-          pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfHeight);
-        } else {
-          let position = 0;
-          let pageHeight = pdf.internal.pageSize.getHeight();
-          let canvasHeight = canvas.height;
-          let pageCanvasHeight = (pageHeight * canvas.width) / pdfWidth;
+        const imgWidth = pdfWidth;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-          while (position < canvasHeight) {
-            const pageCanvas = document.createElement("canvas");
-            pageCanvas.width = canvas.width;
-            pageCanvas.height = Math.min(
-              pageCanvasHeight,
-              canvasHeight - position
-            );
+        let heightLeft = imgHeight;
+        let position = 0;
 
-            const ctx = pageCanvas.getContext("2d");
-            ctx.drawImage(
-              canvas,
-              0,
-              position,
-              canvas.width,
-              pageCanvas.height,
-              0,
-              0,
-              canvas.width,
-              pageCanvas.height
-            );
+        // Primeira página
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pdfHeight;
 
-            const pageData = pageCanvas.toDataURL("image/jpeg", 1.0);
-            if (position === 0) {
-              pdf.addImage(pageData, "JPEG", 0, 0, pdfWidth, pageHeight);
-            } else {
-              pdf.addPage();
-              pdf.addImage(pageData, "JPEG", 0, 0, pdfWidth, pageHeight);
-            }
-            position += pageCanvas.height;
-          }
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+          heightLeft -= pdfHeight;
         }
 
         pdf.save("checklist-veicular.pdf");
