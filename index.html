@@ -46,33 +46,33 @@
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       }
 
-      .fotos h3,
-      .assinatura h3 {
-        margin-top: 0;
-      }
-
       .foto-grid {
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
         gap: 10px;
-        flex-wrap: wrap;
         margin-top: 10px;
       }
 
-      .foto-grid input[type="file"] {
-        width: 100px;
-        height: 100px;
-        padding: 10px;
-        border: 2px dashed #ccc;
-        border-radius: 8px;
-        object-fit: cover;
+      .foto-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
       }
 
-      .foto-grid img {
-        width: 100px;
-        height: 100px;
+      .foto-item input[type="file"] {
+        width: 100%;
+        padding: 8px;
+        border: 2px dashed #ccc;
+        border-radius: 6px;
+      }
+
+      .foto-item img {
+        width: 100%;
+        max-height: 120px;
         object-fit: cover;
-        border-radius: 8px;
         border: 1px solid #ccc;
+        border-radius: 6px;
       }
 
       button {
@@ -96,7 +96,6 @@
       }
     </style>
   </head>
-
   <body>
     <h2>Checklist Veicular</h2>
 
@@ -123,22 +122,22 @@
         <div class="fotos">
           <h3>Condições do Veículo</h3>
           <div class="foto-grid">
-            <div>
+            <div class="foto-item">
               <input type="file" name="foto1" accept="image/*" />
             </div>
-            <div>
+            <div class="foto-item">
               <input type="file" name="foto2" accept="image/*" />
             </div>
-            <div>
+            <div class="foto-item">
               <input type="file" name="foto3" accept="image/*" />
             </div>
-            <div>
+            <div class="foto-item">
               <input type="file" name="foto4" accept="image/*" />
             </div>
-            <div>
+            <div class="foto-item">
               <input type="file" name="foto5" accept="image/*" />
             </div>
-            <div>
+            <div class="foto-item">
               <input type="file" name="foto6" accept="image/*" />
             </div>
           </div>
@@ -164,20 +163,17 @@
     </div>
 
     <script>
-      // Mostra imagens carregadas no DOM
+      // Exibe prévia das imagens
       document.querySelectorAll('input[type="file"]').forEach((input) => {
         input.addEventListener("change", function () {
           const file = this.files[0];
           if (file) {
             const reader = new FileReader();
-            reader.onload = function (e) {
+            reader.onload = (e) => {
               const container = input.parentElement;
               let img = container.querySelector("img");
               if (!img) {
                 img = document.createElement("img");
-                img.style.width = "100px";
-                img.style.height = "100px";
-                img.style.objectFit = "cover";
                 container.appendChild(img);
               }
               img.src = e.target.result;
@@ -190,10 +186,8 @@
       async function gerarPDF() {
         const element = document.getElementById("formulario-pdf");
 
-        // Aguarda a renderização visual antes de capturar
-        await new Promise((resolve) => setTimeout(resolve, 300));
+        await new Promise((resolve) => setTimeout(resolve, 500));
 
-        // Captura com resolução alta
         const canvas = await html2canvas(element, {
           scale: 3,
           useCORS: true,
@@ -202,7 +196,6 @@
         });
 
         const imgData = canvas.toDataURL("image/jpeg", 1.0);
-
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF("p", "mm", "a4");
 
@@ -215,7 +208,6 @@
         let heightLeft = imgHeight;
         let position = 0;
 
-        // Primeira página
         pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
         heightLeft -= pdfHeight;
 
@@ -239,7 +231,7 @@
 
         const mensagem = `
 Olá ${cliente}, segue o checklist do seu veículo (${placa}) feito em ${data}.
-📎 O PDF foi gerado. Por favor, anexe o arquivo baixado nesta conversa para continuar.
+📎 O PDF foi gerado. Por favor, anexe o arquivo baixado nesta conversa.
 `;
 
         const textoCodificado = encodeURIComponent(mensagem);
