@@ -142,4 +142,43 @@
     <button type="submit">Enviar</button>
   </form>
 </body>
+
+<script>
+document.querySelector("form").addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  const cliente = document.querySelector("[name='cliente']").value;
+  const telefone = document.querySelector("[name='telefone']").value.replace(/\D/g, ''); // limpa caracteres
+  const placa = document.querySelector("[name='placa']").value;
+  const km = document.querySelector("[name='km']").value;
+  const ano = document.querySelector("[name='ano']").value;
+  const data = document.querySelector("[name='data']").value;
+  const rodas = document.querySelector("[name='rodas']:checked")?.value || "Não informado";
+  const obs = document.querySelector("[name='observacoes']").value;
+  const assinatura = document.querySelector("[name='assinatura']").value;
+
+  // Mensagem formatada para WhatsApp
+  const mensagem = `
+📋 *Checklist Veicular*
+
+👤 *Cliente:* ${cliente}
+📱 *Telefone:* ${telefone}
+🚘 *Placa:* ${placa}
+📅 *Data:* ${data}
+📆 *Ano:* ${ano}
+📊 *KM:* ${km}
+
+🔧 *Calotas / Rodas:* ${rodas}
+📝 *Observações:* ${obs}
+✍️ *Assinatura:* ${assinatura}
+  `;
+
+  const textoCodificado = encodeURIComponent(mensagem);
+  const numeroWhatsApp = `55${telefone}`; // Prefixo do Brasil + DDD
+
+  window.open(`https://wa.me/${numeroWhatsApp}?text=${textoCodificado}`, "_blank");
+});
+</script>
+
+
 </html>
