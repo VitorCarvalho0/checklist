@@ -51,19 +51,6 @@
         margin-top: 0;
       }
 
-      .opcoes {
-        display: flex;
-        gap: 10px;
-        margin-top: 8px;
-      }
-
-      .opcoes label {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        font-weight: normal;
-      }
-
       .foto-grid {
         display: flex;
         gap: 10px;
@@ -78,6 +65,14 @@
         border: 2px dashed #ccc;
         border-radius: 8px;
         object-fit: cover;
+      }
+
+      .foto-grid img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #ccc;
       }
 
       button {
@@ -101,6 +96,7 @@
       }
     </style>
   </head>
+
   <body>
     <h2>Checklist Veicular</h2>
 
@@ -127,12 +123,24 @@
         <div class="fotos">
           <h3>Condições do Veículo</h3>
           <div class="foto-grid">
-            <input type="file" name="foto1" accept="image/*" />
-            <input type="file" name="foto2" accept="image/*" />
-            <input type="file" name="foto3" accept="image/*" />
-            <input type="file" name="foto4" accept="image/*" />
-            <input type="file" name="foto5" accept="image/*" />
-            <input type="file" name="foto6" accept="image/*" />
+            <div>
+              <input type="file" name="foto1" accept="image/*" />
+            </div>
+            <div>
+              <input type="file" name="foto2" accept="image/*" />
+            </div>
+            <div>
+              <input type="file" name="foto3" accept="image/*" />
+            </div>
+            <div>
+              <input type="file" name="foto4" accept="image/*" />
+            </div>
+            <div>
+              <input type="file" name="foto5" accept="image/*" />
+            </div>
+            <div>
+              <input type="file" name="foto6" accept="image/*" />
+            </div>
           </div>
         </div>
 
@@ -154,88 +162,75 @@
         </button>
       </form>
     </div>
-  </body>
 
-  <script>
-    document.querySelector("form").addEventListener("submit", function (e) {
-      e.preventDefault();
+    <script>
+      // Mostra imagens carregadas no DOM
+      document.querySelectorAll('input[type="file"]').forEach((input) => {
+        input.addEventListener("change", function () {
+          const file = this.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+              const img = document.createElement("img");
+              img.src = e.target.result;
+              const container = input.parentElement;
+              const existingImg = container.querySelector("img");
+              if (existingImg) {
+                existingImg.src = e.target.result;
+              } else {
+                container.appendChild(img);
+              }
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      });
 
-      const cliente = document.querySelector("[name='cliente']").value;
-      const telefone = document
-        .querySelector("[name='telefone']")
-        .value.replace(/\D/g, ""); // limpa caracteres
-      const placa = document.querySelector("[name='placa']").value;
-      const km = document.querySelector("[name='km']").value;
-      const ano = document.querySelector("[name='ano']").value;
-      const data = document.querySelector("[name='data']").value;
-      const rodas =
-        document.querySelector("[name='rodas']:checked")?.value ||
-        "Não informado";
-      const obs = document.querySelector("[name='observacoes']").value;
-      const assinatura = document.querySelector("[name='assinatura']").value;
+      async function gerarPDF() {
+        const element = document.getElementById("formulario-pdf");
 
-      // Mensagem formatada para WhatsApp
-      const mensagem = `
-📋 *Checklist Veicular*
+        // Aguarda renderização
+        await new Promise((resolve) => setTimeout(resolve, 300));
 
-👤 *Cliente:* ${cliente}
-📱 *Telefone:* ${telefone}
-🚘 *Placa:* ${placa}
-📅 *Data:* ${data}
-📆 *Ano:* ${ano}
-📊 *KM:* ${km}
+        const canvas = await html2canvas(element, {
+          scale: 2,
+          useCORS: true,
+          windowWidth: element.scrollWidth,
+          windowHeight: element.scrollHeight,
+        });
 
-🔧 *Calotas / Rodas:* ${rodas}
-📝 *Observações:* ${obs}
-✍️ *Assinatura:* ${assinatura}
-  `;
+        const imgData = canvas.toDataURL("image/png");
 
-      const textoCodificado = encodeURIComponent(mensagem);
-      const numeroWhatsApp = `55${telefone}`; // Prefixo do Brasil + DDD
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF("p", "mm", "a4");
 
-      window.open(
-        `https://wa.me/${numeroWhatsApp}?text=${textoCodificado}`,
-        "_blank"
-      );
-    });
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-    async function gerarPDF() {
-      const element = document.getElementById("formulario-pdf");
-      const canvas = await html2canvas(element);
-      const imgData = canvas.toDataURL("image/png");
+        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+        pdf.save("checklist-veicular.pdf");
+      }
 
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF("p", "mm", "a4");
+      function enviarWhatsApp() {
+        const cliente = document.querySelector("[name='cliente']").value;
+        const telefone = document
+          .querySelector("[name='telefone']")
+          .value.replace(/\D/g, "");
+        const placa = document.querySelector("[name='placa']").value;
+        const data = document.querySelector("[name='data']").value;
 
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-      pdf.save("checklist-veicular.pdf");
-    }
-
-    function enviarWhatsApp() {
-      const cliente = document.querySelector("[name='cliente']").value;
-      const telefone = document
-        .querySelector("[name='telefone']")
-        .value.replace(/\D/g, "");
-      const placa = document.querySelector("[name='placa']").value;
-      const data = document.querySelector("[name='data']").value;
-
-      const mensagem = `
+        const mensagem = `
 Olá ${cliente}, segue o checklist do seu veículo (${placa}) feito em ${data}.
-O PDF foi gerado e está disponível para envio pelo WhatsApp.
+📎 O PDF foi gerado. Por favor, anexe o arquivo baixado nesta conversa para continuar.
+`;
 
-📎 Anexe o arquivo PDF abaixo e envie normalmente.
-  `;
-
-      const textoCodificado = encodeURIComponent(mensagem);
-      const numeroWhatsApp = `55${telefone}`;
-      window.open(
-        `https://wa.me/${numeroWhatsApp}?text=${textoCodificado}`,
-        "_blank"
-      );
-    }
-  </script>
+        const textoCodificado = encodeURIComponent(mensagem);
+        const numeroWhatsApp = `55${telefone}`;
+        window.open(
+          `https://wa.me/${numeroWhatsApp}?text=${textoCodificado}`,
+          "_blank"
+        );
+      }
+    </script>
+  </body>
 </html>
