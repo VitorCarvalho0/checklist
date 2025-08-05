@@ -15,57 +15,70 @@ KM: ${dados.get("km")}
 Ano: ${dados.get("ano")}
 Data: ${dados.get("data")}
 Observações: ${dados.get("observacoes")}
-Assinatura: ${dados.get("assinatura")}
 `;
 
-  const margin = 10;
-  let y = 10;
-  const lineHeight = 7;
-  pdf.setFontSize(12);
+  const margin = 15;
+  let y = 20;
+  const lineHeight = 9;
+  pdf.setFontSize(13);
 
-  camposTexto.split("\n").forEach((linha) => {
+  // Texto principal
+  camposTexto.trim().split("\n").forEach((linha) => {
     if (linha.trim() !== "") {
       pdf.text(linha, margin, y);
       y += lineHeight;
     }
   });
 
-  // Salto antes das imagens
-  y += 5;
+  // Espaço extra antes das imagens
+  y += 10;
+  pdf.setFontSize(12);
   pdf.text("Fotos do Veículo:", margin, y);
   y += lineHeight;
 
-  const maxWidth = 60;
-  const maxHeight = 45;
-  const spacing = 5;
+  const maxWidth = 85;
+  const maxHeight = 65;
+  const spacing = 10;
   let col = 0;
 
   for (let i = 1; i <= 6; i++) {
     const input = form.querySelector(`[name="foto${i}"]`);
-    if (input.files[0]) {
+    if (input?.files[0]) {
       const dataURL = await fileToDataURL(input.files[0]);
 
-      if (col === 2) {
-        col = 0;
-        y += maxHeight + spacing;
-      }
-
-      if (y + maxHeight > 280) {
+      if (y + maxHeight > pdf.internal.pageSize.getHeight() - 30) {
         pdf.addPage();
-        y = 10;
+        y = 20;
+        pdf.text("Fotos do Veículo (continuação):", margin, y);
+        y += lineHeight;
       }
 
       const x = margin + col * (maxWidth + spacing);
       pdf.addImage(dataURL, "JPEG", x, y, maxWidth, maxHeight);
+
       col++;
+      if (col === 2) {
+        col = 0;
+        y += maxHeight + spacing;
+      }
     }
   }
 
+  // Assinatura
   if (signaturePad && !signaturePad.isEmpty()) {
-    pdf.addPage();
-    pdf.text("Assinatura do Cliente:", margin, 20);
+    if (y + 70 > pdf.internal.pageSize.getHeight() - 20) {
+      pdf.addPage();
+      y = 20;
+    } else {
+      y += 15;
+    }
+
+    pdf.setFontSize(12);
+    pdf.text("Assinatura do Cliente:", margin, y);
+    y += 5;
+
     const assinaturaImg = signaturePad.toDataURL("image/png");
-    pdf.addImage(assinaturaImg, "PNG", margin, 30, 100, 50);
+    pdf.addImage(assinaturaImg, "PNG", margin, y + 5, 100, 50);
   }
 
   pdf.save("checklist-veicular.pdf");
