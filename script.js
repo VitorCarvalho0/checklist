@@ -61,6 +61,13 @@ Assinatura: ${dados.get("assinatura")}
     }
   }
 
+  if (signaturePad && !signaturePad.isEmpty()) {
+    pdf.addPage();
+    pdf.text("Assinatura do Cliente:", margin, 20);
+    const assinaturaImg = signaturePad.toDataURL("image/png");
+    pdf.addImage(assinaturaImg, "PNG", margin, 30, 100, 50);
+  }
+
   pdf.save("checklist-veicular.pdf");
 }
 
@@ -71,4 +78,19 @@ function fileToDataURL(file) {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+}
+
+let canvas, signaturePad;
+
+window.addEventListener("load", () => {
+  canvas = document.getElementById("assinatura");
+  if (canvas) {
+    signaturePad = new SignaturePad(canvas);
+  }
+});
+
+function limparAssinatura() {
+  if (signaturePad) {
+    signaturePad.clear();
+  }
 }

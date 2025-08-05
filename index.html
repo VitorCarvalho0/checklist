@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link rel="stylesheet" href="style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.6/dist/signature_pad.umd.min.js"></script>
     <title>Checklist Veicular</title>
   </head>
   <body>
@@ -31,8 +32,19 @@
       <label>Observações</label>
       <textarea name="observacoes" rows="4"></textarea>
 
-      <label>Assinatura</label>
-      <input type="text" name="assinatura" />
+      <div class="assinatura-container">
+        <label>Assinatura do Cliente</label>
+        <canvas
+          id="assinatura"
+          width="300"
+          height="150"
+          style="border: 1px solid #ccc; border-radius: 8px"
+        ></canvas>
+        <br />
+        <button type="button" onclick="limparAssinatura()">
+          Limpar Assinatura
+        </button>
+      </div>
 
       <h3>Fotos do Veículo</h3>
       <div class="foto-grid">
